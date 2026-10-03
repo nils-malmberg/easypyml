@@ -5,6 +5,8 @@ from typing import Self
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
+from easypyml.utils import check_array, check_is_fitted, check_X_y
+
 
 class LinearRegression:
     """Ordinary least squares (OLS) linear regression.
@@ -109,16 +111,7 @@ class LinearRegression:
         self : LinearRegression
             The fitted estimator.
         """
-        X_arr = np.asarray(X, dtype=np.float64)
-        y_arr = np.asarray(y, dtype=np.float64)
-        if X_arr.ndim != 2:
-            raise ValueError(f"X must be 2D (n_samples, n_features), got shape {X_arr.shape}.")
-        if y_arr.ndim != 1:
-            raise ValueError(f"y must be 1D (n_samples,), got shape {y_arr.shape}.")
-        if X_arr.shape[0] != y_arr.shape[0]:
-            raise ValueError(f"X has {X_arr.shape[0]} samples but y has {y_arr.shape[0]}.")
-        if not (np.isfinite(X_arr).all() and np.isfinite(y_arr).all()):
-            raise ValueError("X and y must not contain NaN or infinity.")
+        X_arr, y_arr = check_X_y(X, y)
 
         if self.fit_intercept:
             X_mean = X_arr.mean(axis=0)
@@ -133,9 +126,8 @@ class LinearRegression:
 
         self.coef_ = coef
         self.intercept_ = float(y_mean - X_mean @ coef)
-        self.rank_ = int(
-            rank
-        )  # number of independent columns, if rank<shape[1] => infinity of solutions
+        # rank: number of independent columns, if rank<shape[1] => infinity of solutions
+        self.rank_ = int(rank)
         self.n_features_in_ = X_arr.shape[1]  # to avoid .predict() on wrong shapes
         return self
 
@@ -152,13 +144,6 @@ class LinearRegression:
         y_pred : ndarray of shape (n_samples,)
             Predicted values.
         """
-        if not hasattr(self, "coef_"):
-            raise AttributeError(
-                "This LinearRegression instance is not fitted yet. Call 'fit' first."
-            )
-        X_arr = np.asarray(X, dtype=np.float64)
-        if X_arr.ndim != 2 or X_arr.shape[1] != self.n_features_in_:
-            raise ValueError(
-                f"X must have shape (n_samples, {self.n_features_in_}), got {X_arr.shape}."
-            )
+        check_is_fitted(self)
+        X_arr = check_array(X, self.n_features_in_)
         return X_arr @ self.coef_ + self.intercept_
