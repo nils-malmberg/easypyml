@@ -1,14 +1,17 @@
 """Ordinary least squares linear regression."""
 
+from dataclasses import dataclass, field
 from typing import Self
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
+from easypyml.base import BaseRegressor
 from easypyml.utils import check_array, check_is_fitted, check_X_y
 
 
-class LinearRegression:
+@dataclass
+class LinearRegression(BaseRegressor):
     """Ordinary least squares (OLS) linear regression.
 
     Fits ``y ≈ X @ coef_ + intercept_`` by minimising the sum of squared
@@ -88,13 +91,12 @@ class LinearRegression:
     (array([3.]), 10.0)
     """
 
-    coef_: NDArray[np.float64]
-    intercept_: float
-    rank_: int
-    n_features_in_: int
+    fit_intercept: bool = True
 
-    def __init__(self, fit_intercept: bool = True) -> None:
-        self.fit_intercept = fit_intercept
+    coef_: NDArray[np.float64] = field(init=False, repr=False, compare=False)
+    intercept_: float = field(init=False, repr=False, compare=False)
+    rank_: int = field(init=False, repr=False, compare=False)
+    n_features_in_: int = field(init=False, repr=False, compare=False)
 
     def fit(self, X: ArrayLike, y: ArrayLike) -> Self:
         """Fit the model by least squares.

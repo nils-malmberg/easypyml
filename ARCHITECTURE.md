@@ -18,11 +18,11 @@ Every function has complete type annotations.
 ### 3. Comprehensive Testing
 Tests written while coding, not after.
 
-### 4. Immutable State with Dataclasses
-Parameters stored in frozen dataclasses.
+### 4. Dataclass estimators
+Hyperparameters are dataclass fields; learned attributes end with _, are declared with field(init=False, repr=False, compare=False) and created by fit. Estimators are not frozen: fit mutates self and returns it.
 
-### 5. Pydantic for Validation
-Strict validation of inputs.
+### 5. Validation
+Arrays are validated by plain functions in utils/validation.py; hyperparameter constraints use Pydantic (from LogisticRegression on).
 
 ## Module Organization
 
